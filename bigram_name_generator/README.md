@@ -340,3 +340,213 @@ The bigram model is a tiny conceptual ancestor of modern language models. It tea
 - Train on datasets from different languages.
 - Build a small web interface with Streamlit or Flask.
 - Compare bigram, trigram, and neural models side by side.
+
+---
+
+# Phase 2: Neural Bigram Name Generator
+
+Phase 2 replaces the count matrix with a small PyTorch neural network.
+
+The task is still next-character prediction:
+
+```text
+current character -> next character
+```
+
+But instead of directly counting transitions, the model learns trainable weights.
+
+## Phase 2 How To Run
+
+```bash
+python neural_main.py
+```
+
+Run with fewer epochs for a quick test:
+
+```bash
+python neural_main.py --epochs 100
+```
+
+Predict the next character after a custom prefix:
+
+```bash
+python neural_main.py --prompt em
+```
+
+The neural bigram model only uses the last character of the prompt. For `em`, it predicts from `m`.
+
+## Phase 2 Outputs
+
+```text
+outputs/neural_generated_names.txt
+outputs/neural_training_loss.png
+```
+
+## Neural Architecture Diagram
+
+```text
+Dataset
+   |
+   v
+Tokenization
+   |
+   v
+Encoding
+   |
+   v
+Embedding Layer
+   |
+   v
+Linear Layer
+   |
+   v
+Softmax
+   |
+   v
+Prediction
+```
+
+## What The Neural Network Learns
+
+The model receives one character id as input.
+
+Example:
+
+```text
+m
+```
+
+The character is converted to an integer:
+
+```text
+m -> 13
+```
+
+The embedding layer converts that id into a learned vector:
+
+```text
+13 -> [0.12, -0.44, 0.31, ...]
+```
+
+The linear layer converts the vector into one score for every possible next character:
+
+```text
+scores for ['.', 'a', 'b', ..., 'z']
+```
+
+Softmax converts those scores into probabilities.
+
+## Bigram Count Matrix vs Neural Bigram Model
+
+Count matrix:
+
+```text
+Count how often each character follows another character.
+Normalize counts into probabilities.
+```
+
+Neural model:
+
+```text
+Learn embeddings and weights that predict the next character.
+Use loss and backpropagation to improve predictions.
+```
+
+| Feature | Count Matrix Bigram | Neural Bigram |
+|---|---|---|
+| Learns by | Counting | Gradient descent |
+| Parameters | Count table | Embeddings + linear weights |
+| Training loss | No | Yes |
+| Optimizer | No | Adam |
+| Uses PyTorch | No | Yes |
+| Can extend to deep models | Limited | Yes |
+
+## Advantages Of Neural Networks Over Count-Based Models
+
+Neural networks are more flexible because they learn parameters instead of storing only raw counts.
+
+Advantages:
+
+- They can use embeddings.
+- They can be trained with loss functions.
+- They can be extended with hidden layers.
+- They can support larger contexts.
+- They are the foundation of modern neural language models.
+
+This specific neural bigram is still simple, but it introduces the training pattern used by larger models.
+
+## Key Learning Concepts
+
+Embedding:
+
+```text
+A learned vector representation of a token.
+```
+
+Forward propagation:
+
+```text
+The input moves through the model to produce predictions.
+```
+
+Cross entropy loss:
+
+```text
+Measures how wrong the predicted probability distribution is.
+```
+
+Backpropagation:
+
+```text
+Computes gradients that show how each parameter affected the loss.
+```
+
+Gradient descent:
+
+```text
+Updates weights in the direction that reduces loss.
+```
+
+Adam optimizer:
+
+```text
+An adaptive optimizer that often trains neural networks faster and more smoothly than plain gradient descent.
+```
+
+## Connection To Modern LLMs
+
+The learning path looks like this:
+
+```text
+Bigram Model
+      |
+      v
+Neural Language Model
+      |
+      v
+Attention
+      |
+      v
+Transformer
+      |
+      v
+GPT
+```
+
+This project predicts the next character from one previous character.
+
+GPT predicts the next token from many previous tokens.
+
+The shared idea is:
+
+```text
+Use previous context to predict the next token.
+```
+
+What changes is the power of the model:
+
+- Bigram models use tiny context.
+- Neural language models learn trainable representations.
+- Attention lets models focus on relevant previous tokens.
+- Transformers stack attention and feed-forward layers.
+- GPT scales this idea with huge datasets, many parameters, and long context windows.
