@@ -1,0 +1,15 @@
+I am learning natural language processing.
+Natural language processing helps computers understand text.
+Text can be split into smaller tokens.
+Tokens are converted into integer ids.
+Integer ids are passed into an embedding layer.
+Embeddings are learned vectors.
+The model uses vectors to learn patterns.
+Patterns help the model make predictions.
+The model predicts the next sentence.
+Training improves the prediction over time.
+Loss tells us how wrong the model is.
+Backpropagation calculates useful gradients.
+The optimizer updates the model weights.
+After training we can type a sentence.
+The model will suggest the next sentence.

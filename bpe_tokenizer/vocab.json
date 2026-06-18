@@ -1,0 +1,707 @@
+{
+  "vocab": {
+    "\n": 0,
+    " ": 1,
+    ".": 2,
+    "B": 3,
+    "E": 4,
+    "P": 5,
+    "T": 6,
+    "a": 7,
+    "b": 8,
+    "c": 9,
+    "d": 10,
+    "e": 11,
+    "f": 12,
+    "g": 13,
+    "h": 14,
+    "i": 15,
+    "k": 16,
+    "l": 17,
+    "m": 18,
+    "n": 19,
+    "o": 20,
+    "p": 21,
+    "q": 22,
+    "r": 23,
+    "s": 24,
+    "t": 25,
+    "u": 26,
+    "v": 27,
+    "w": 28,
+    "y": 29,
+    "z": 30,
+    "s ": 31,
+    "er": 32,
+    "or": 33,
+    "en": 34,
+    "e ": 35,
+    "an": 36,
+    "ar": 37,
+    ".\n": 38,
+    "for": 39,
+    "mer": 40,
+    "hi": 41,
+    "el": 42,
+    "y ": 43,
+    "at": 44,
+    " t": 45,
+    " to": 46,
+    "s.\n": 47,
+    "in": 48,
+    "ran": 49,
+    "rans": 50,
+    "ransfor": 51,
+    "ransformer": 52,
+    "ct": 53,
+    "is ": 54,
+    "ly ": 55,
+    "ow": 56,
+    "ent": 57,
+    "io": 58,
+    "ion": 59,
+    "od": 60,
+    " r": 61,
+    " tok": 62,
+    " token": 63,
+    "ai": 64,
+    "air": 65,
+    "ing": 66,
+    "ing ": 67,
+    "s f": 68,
+    "s fr": 69,
+    "Th": 70,
+    "The ": 71,
+    "The t": 72,
+    "The transformer": 73,
+    "The transformer ": 74,
+    "The transformer ar": 75,
+    "The transformer arc": 76,
+    "The transformer archi": 77,
+    "The transformer archit": 78,
+    "The transformer archite": 79
+  },
+  "id_to_token": {
+    "0": "\n",
+    "1": " ",
+    "2": ".",
+    "3": "B",
+    "4": "E",
+    "5": "P",
+    "6": "T",
+    "7": "a",
+    "8": "b",
+    "9": "c",
+    "10": "d",
+    "11": "e",
+    "12": "f",
+    "13": "g",
+    "14": "h",
+    "15": "i",
+    "16": "k",
+    "17": "l",
+    "18": "m",
+    "19": "n",
+    "20": "o",
+    "21": "p",
+    "22": "q",
+    "23": "r",
+    "24": "s",
+    "25": "t",
+    "26": "u",
+    "27": "v",
+    "28": "w",
+    "29": "y",
+    "30": "z",
+    "31": "s ",
+    "32": "er",
+    "33": "or",
+    "34": "en",
+    "35": "e ",
+    "36": "an",
+    "37": "ar",
+    "38": ".\n",
+    "39": "for",
+    "40": "mer",
+    "41": "hi",
+    "42": "el",
+    "43": "y ",
+    "44": "at",
+    "45": " t",
+    "46": " to",
+    "47": "s.\n",
+    "48": "in",
+    "49": "ran",
+    "50": "rans",
+    "51": "ransfor",
+    "52": "ransformer",
+    "53": "ct",
+    "54": "is ",
+    "55": "ly ",
+    "56": "ow",
+    "57": "ent",
+    "58": "io",
+    "59": "ion",
+    "60": "od",
+    "61": " r",
+    "62": " tok",
+    "63": " token",
+    "64": "ai",
+    "65": "air",
+    "66": "ing",
+    "67": "ing ",
+    "68": "s f",
+    "69": "s fr",
+    "70": "Th",
+    "71": "The ",
+    "72": "The t",
+    "73": "The transformer",
+    "74": "The transformer ",
+    "75": "The transformer ar",
+    "76": "The transformer arc",
+    "77": "The transformer archi",
+    "78": "The transformer archit",
+    "79": "The transformer archite"
+  },
+  "merge_history": [
+    {
+      "step": 1,
+      "pair": [
+        "s",
+        " "
+      ],
+      "merged_token": "s ",
+      "frequency": 9,
+      "vocab_size": 32,
+      "token_count": 258
+    },
+    {
+      "step": 2,
+      "pair": [
+        "e",
+        "r"
+      ],
+      "merged_token": "er",
+      "frequency": 6,
+      "vocab_size": 33,
+      "token_count": 252
+    },
+    {
+      "step": 3,
+      "pair": [
+        "o",
+        "r"
+      ],
+      "merged_token": "or",
+      "frequency": 5,
+      "vocab_size": 34,
+      "token_count": 247
+    },
+    {
+      "step": 4,
+      "pair": [
+        "e",
+        "n"
+      ],
+      "merged_token": "en",
+      "frequency": 5,
+      "vocab_size": 35,
+      "token_count": 242
+    },
+    {
+      "step": 5,
+      "pair": [
+        "e",
+        " "
+      ],
+      "merged_token": "e ",
+      "frequency": 4,
+      "vocab_size": 36,
+      "token_count": 238
+    },
+    {
+      "step": 6,
+      "pair": [
+        "a",
+        "n"
+      ],
+      "merged_token": "an",
+      "frequency": 4,
+      "vocab_size": 37,
+      "token_count": 234
+    },
+    {
+      "step": 7,
+      "pair": [
+        "a",
+        "r"
+      ],
+      "merged_token": "ar",
+      "frequency": 4,
+      "vocab_size": 38,
+      "token_count": 230
+    },
+    {
+      "step": 8,
+      "pair": [
+        ".",
+        "\n"
+      ],
+      "merged_token": ".\n",
+      "frequency": 4,
+      "vocab_size": 39,
+      "token_count": 226
+    },
+    {
+      "step": 9,
+      "pair": [
+        "f",
+        "or"
+      ],
+      "merged_token": "for",
+      "frequency": 3,
+      "vocab_size": 40,
+      "token_count": 223
+    },
+    {
+      "step": 10,
+      "pair": [
+        "m",
+        "er"
+      ],
+      "merged_token": "mer",
+      "frequency": 3,
+      "vocab_size": 41,
+      "token_count": 220
+    },
+    {
+      "step": 11,
+      "pair": [
+        "h",
+        "i"
+      ],
+      "merged_token": "hi",
+      "frequency": 3,
+      "vocab_size": 42,
+      "token_count": 217
+    },
+    {
+      "step": 12,
+      "pair": [
+        "e",
+        "l"
+      ],
+      "merged_token": "el",
+      "frequency": 3,
+      "vocab_size": 43,
+      "token_count": 214
+    },
+    {
+      "step": 13,
+      "pair": [
+        "y",
+        " "
+      ],
+      "merged_token": "y ",
+      "frequency": 3,
+      "vocab_size": 44,
+      "token_count": 211
+    },
+    {
+      "step": 14,
+      "pair": [
+        "a",
+        "t"
+      ],
+      "merged_token": "at",
+      "frequency": 3,
+      "vocab_size": 45,
+      "token_count": 208
+    },
+    {
+      "step": 15,
+      "pair": [
+        " ",
+        "t"
+      ],
+      "merged_token": " t",
+      "frequency": 3,
+      "vocab_size": 46,
+      "token_count": 205
+    },
+    {
+      "step": 16,
+      "pair": [
+        " t",
+        "o"
+      ],
+      "merged_token": " to",
+      "frequency": 3,
+      "vocab_size": 47,
+      "token_count": 202
+    },
+    {
+      "step": 17,
+      "pair": [
+        "s",
+        ".\n"
+      ],
+      "merged_token": "s.\n",
+      "frequency": 3,
+      "vocab_size": 48,
+      "token_count": 199
+    },
+    {
+      "step": 18,
+      "pair": [
+        "i",
+        "n"
+      ],
+      "merged_token": "in",
+      "frequency": 3,
+      "vocab_size": 49,
+      "token_count": 196
+    },
+    {
+      "step": 19,
+      "pair": [
+        "r",
+        "an"
+      ],
+      "merged_token": "ran",
+      "frequency": 2,
+      "vocab_size": 50,
+      "token_count": 194
+    },
+    {
+      "step": 20,
+      "pair": [
+        "ran",
+        "s"
+      ],
+      "merged_token": "rans",
+      "frequency": 2,
+      "vocab_size": 51,
+      "token_count": 192
+    },
+    {
+      "step": 21,
+      "pair": [
+        "rans",
+        "for"
+      ],
+      "merged_token": "ransfor",
+      "frequency": 2,
+      "vocab_size": 52,
+      "token_count": 190
+    },
+    {
+      "step": 22,
+      "pair": [
+        "ransfor",
+        "mer"
+      ],
+      "merged_token": "ransformer",
+      "frequency": 2,
+      "vocab_size": 53,
+      "token_count": 188
+    },
+    {
+      "step": 23,
+      "pair": [
+        "c",
+        "t"
+      ],
+      "merged_token": "ct",
+      "frequency": 2,
+      "vocab_size": 54,
+      "token_count": 186
+    },
+    {
+      "step": 24,
+      "pair": [
+        "i",
+        "s "
+      ],
+      "merged_token": "is ",
+      "frequency": 2,
+      "vocab_size": 55,
+      "token_count": 184
+    },
+    {
+      "step": 25,
+      "pair": [
+        "l",
+        "y "
+      ],
+      "merged_token": "ly ",
+      "frequency": 2,
+      "vocab_size": 56,
+      "token_count": 182
+    },
+    {
+      "step": 26,
+      "pair": [
+        "o",
+        "w"
+      ],
+      "merged_token": "ow",
+      "frequency": 2,
+      "vocab_size": 57,
+      "token_count": 180
+    },
+    {
+      "step": 27,
+      "pair": [
+        "en",
+        "t"
+      ],
+      "merged_token": "ent",
+      "frequency": 2,
+      "vocab_size": 58,
+      "token_count": 178
+    },
+    {
+      "step": 28,
+      "pair": [
+        "i",
+        "o"
+      ],
+      "merged_token": "io",
+      "frequency": 2,
+      "vocab_size": 59,
+      "token_count": 176
+    },
+    {
+      "step": 29,
+      "pair": [
+        "io",
+        "n"
+      ],
+      "merged_token": "ion",
+      "frequency": 2,
+      "vocab_size": 60,
+      "token_count": 174
+    },
+    {
+      "step": 30,
+      "pair": [
+        "o",
+        "d"
+      ],
+      "merged_token": "od",
+      "frequency": 2,
+      "vocab_size": 61,
+      "token_count": 172
+    },
+    {
+      "step": 31,
+      "pair": [
+        " ",
+        "r"
+      ],
+      "merged_token": " r",
+      "frequency": 2,
+      "vocab_size": 62,
+      "token_count": 170
+    },
+    {
+      "step": 32,
+      "pair": [
+        " to",
+        "k"
+      ],
+      "merged_token": " tok",
+      "frequency": 2,
+      "vocab_size": 63,
+      "token_count": 168
+    },
+    {
+      "step": 33,
+      "pair": [
+        " tok",
+        "en"
+      ],
+      "merged_token": " token",
+      "frequency": 2,
+      "vocab_size": 64,
+      "token_count": 166
+    },
+    {
+      "step": 34,
+      "pair": [
+        "a",
+        "i"
+      ],
+      "merged_token": "ai",
+      "frequency": 2,
+      "vocab_size": 65,
+      "token_count": 164
+    },
+    {
+      "step": 35,
+      "pair": [
+        "ai",
+        "r"
+      ],
+      "merged_token": "air",
+      "frequency": 2,
+      "vocab_size": 66,
+      "token_count": 162
+    },
+    {
+      "step": 36,
+      "pair": [
+        "in",
+        "g"
+      ],
+      "merged_token": "ing",
+      "frequency": 2,
+      "vocab_size": 67,
+      "token_count": 160
+    },
+    {
+      "step": 37,
+      "pair": [
+        "ing",
+        " "
+      ],
+      "merged_token": "ing ",
+      "frequency": 2,
+      "vocab_size": 68,
+      "token_count": 158
+    },
+    {
+      "step": 38,
+      "pair": [
+        "s ",
+        "f"
+      ],
+      "merged_token": "s f",
+      "frequency": 2,
+      "vocab_size": 69,
+      "token_count": 156
+    },
+    {
+      "step": 39,
+      "pair": [
+        "s f",
+        "r"
+      ],
+      "merged_token": "s fr",
+      "frequency": 2,
+      "vocab_size": 70,
+      "token_count": 154
+    },
+    {
+      "step": 40,
+      "pair": [
+        "T",
+        "h"
+      ],
+      "merged_token": "Th",
+      "frequency": 1,
+      "vocab_size": 71,
+      "token_count": 153
+    },
+    {
+      "step": 41,
+      "pair": [
+        "Th",
+        "e "
+      ],
+      "merged_token": "The ",
+      "frequency": 1,
+      "vocab_size": 72,
+      "token_count": 152
+    },
+    {
+      "step": 42,
+      "pair": [
+        "The ",
+        "t"
+      ],
+      "merged_token": "The t",
+      "frequency": 1,
+      "vocab_size": 73,
+      "token_count": 151
+    },
+    {
+      "step": 43,
+      "pair": [
+        "The t",
+        "ransformer"
+      ],
+      "merged_token": "The transformer",
+      "frequency": 1,
+      "vocab_size": 74,
+      "token_count": 150
+    },
+    {
+      "step": 44,
+      "pair": [
+        "The transformer",
+        " "
+      ],
+      "merged_token": "The transformer ",
+      "frequency": 1,
+      "vocab_size": 75,
+      "token_count": 149
+    },
+    {
+      "step": 45,
+      "pair": [
+        "The transformer ",
+        "ar"
+      ],
+      "merged_token": "The transformer ar",
+      "frequency": 1,
+      "vocab_size": 76,
+      "token_count": 148
+    },
+    {
+      "step": 46,
+      "pair": [
+        "The transformer ar",
+        "c"
+      ],
+      "merged_token": "The transformer arc",
+      "frequency": 1,
+      "vocab_size": 77,
+      "token_count": 147
+    },
+    {
+      "step": 47,
+      "pair": [
+        "The transformer arc",
+        "hi"
+      ],
+      "merged_token": "The transformer archi",
+      "frequency": 1,
+      "vocab_size": 78,
+      "token_count": 146
+    },
+    {
+      "step": 48,
+      "pair": [
+        "The transformer archi",
+        "t"
+      ],
+      "merged_token": "The transformer archit",
+      "frequency": 1,
+      "vocab_size": 79,
+      "token_count": 145
+    },
+    {
+      "step": 49,
+      "pair": [
+        "The transformer archit",
+        "e"
+      ],
+      "merged_token": "The transformer archite",
+      "frequency": 1,
+      "vocab_size": 80,
+      "token_count": 144
+    }
+  ]
+}

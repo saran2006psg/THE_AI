@@ -1,0 +1,4 @@
+The transformer architecture is unbelievably powerful.
+Transformers use attention to model relationships between tokens.
+Byte Pair Encoding starts from characters and repeatedly merges frequent pairs.
+This tiny corpus is meant for learning how a BPE tokenizer works.

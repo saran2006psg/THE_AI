@@ -1,0 +1,6 @@
+hello world
+hello pytorch
+hello neural networks
+language models predict the next token
+character prediction is a tiny version of language modeling
+we learn patterns from text one character at a time
