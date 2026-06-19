@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BERT Semantic Odyssey: The Contextual Embedding Game</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Background grid decoration -->
+    <div class="grid-overlay"></div>
+    <div class="radial-glow-1"></div>
+    <div class="radial-glow-2"></div>
+
+    <!-- Model Loading Screen Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loader-card glass-panel">
+            <div class="loader-logo">
+                <i class="fa-solid fa-brain glow-text"></i>
+                <h1>BERT SEMANTIC ODYSSEY</h1>
+            </div>
+            <div class="loader-status">
+                <span class="pulse-dot"></span>
+                <span id="loading-stage">INITIALIZING ENGINE...</span>
+            </div>
+            <div class="progress-bar-container">
+                <div id="loading-progress-bar" class="progress-bar" style="width: 0%"></div>
+            </div>
+            <div class="progress-percentage" id="loading-percentage">0%</div>
+            
+            <div class="terminal-log-container">
+                <div class="terminal-header">
+                    <span class="term-dot red"></span>
+                    <span class="term-dot yellow"></span>
+                    <span class="term-dot green"></span>
+                    <span class="term-title">Model Downloader Log</span>
+                </div>
+                <div id="terminal-log" class="terminal-log">
+                    <div class="log-line text-muted">[SYSTEM] Connecting to Hugging Face CDN...</div>
+                    <div class="log-line text-muted">[SYSTEM] Preparing Xenova/all-MiniLM-L6-v2 ONNX weights...</div>
+                </div>
+            </div>
+            <div class="loader-notice">
+                <i class="fa-solid fa-circle-info"></i>
+                First time setup downloads a lightweight BERT-based model (~23MB) directly to your browser's local cache. Future visits load instantly.
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Wrapper -->
+    <div class="app-wrapper">
+        <header class="app-header glass-panel">
+            <div class="logo">
+                <i class="fa-solid fa-dharmachakra brand-icon"></i>
+                <div class="logo-text">
+                    <span class="title-main">BERT</span>
+                    <span class="title-sub">SEMANTIC ODYSSEY</span>
+                </div>
+            </div>
+            
+            <nav class="app-nav">
+                <button class="nav-btn active" data-tab="duel-tab">
+                    <i class="fa-solid fa-compress"></i>
+                    <span>Polysemy Duel</span>
+                </button>
+                <button class="nav-btn" data-tab="navigator-tab">
+                    <i class="fa-solid fa-route"></i>
+                    <span>Space Navigator</span>
+                </button>
+                <button class="nav-btn" data-tab="explainer-tab">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span>How BERT Works</span>
+                </button>
+            </nav>
+
+            <div class="model-badge">
+                <i class="fa-solid fa-microchip"></i>
+                <span>MiniLM-L6-v2 (BERT)</span>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <!-- TAB 1: POLYSEMY DUEL -->
+            <section id="duel-tab" class="tab-pane active">
+                <div class="split-layout">
+                    <div class="panel-left glass-panel">
+                        <div class="section-title-wrapper">
+                            <span class="badge">GAME MODE 01</span>
+                            <h2>Contextual Polysemy Duel</h2>
+                            <p class="subtitle">BERT generates different embeddings for the same word based on surrounding context. Craft sentences that match the target meanings!</p>
+                        </div>
+
+                        <div class="game-setup">
+                            <label for="word-select" class="input-label">Select Polysemous Word:</label>
+                            <div class="select-wrapper">
+                                <select id="word-select" class="custom-select">
+                                    <option value="bank">Bank (River vs. Finance)</option>
+                                    <option value="apple">Apple (Fruit vs. Tech)</option>
+                                    <option value="date">Date (Fruit/Time vs. Romantic)</option>
+                                    <option value="key">Key (Tool vs. Critical/Musical)</option>
+                                    <option value="cell">Cell (Biology vs. Prison/Phone)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Target Contexts Display -->
+                        <div class="contexts-container">
+                            <div class="context-card card-a" id="context-a-card">
+                                <div class="card-header">
+                                    <span class="card-label bg-glow-blue">CONTEXT A</span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="context-sentence" id="context-a-sentence">Loading...</p>
+                                    <div class="context-meaning">
+                                        <i class="fa-solid fa-tag text-blue"></i>
+                                        <span id="context-a-meaning">Loading meaning...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="context-card card-b" id="context-b-card">
+                                <div class="card-header">
+                                    <span class="card-label bg-glow-purple">CONTEXT B</span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="context-sentence" id="context-b-sentence">Loading...</p>
+                                    <div class="context-meaning">
+                                        <i class="fa-solid fa-tag text-purple"></i>
+                                        <span id="context-b-meaning">Loading meaning...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User input zone -->
+                        <div class="input-zone">
+                            <div class="challenge-goal">
+                                <p><strong>Your Mission:</strong> Choose a target context, and write a sentence of your own where the word "<span class="target-word-highlight">word</span>" has the <strong>exact same meaning</strong>. Try to score above 90% similarity!</p>
+                                <div class="target-selector-buttons">
+                                    <button class="target-select-btn active-a" id="select-target-a">Match Context A</button>
+                                    <button class="target-select-btn" id="select-target-b">Match Context B</button>
+                                </div>
+                            </div>
+                            
+                            <label for="duel-user-input" class="input-label">Your Custom Sentence:</label>
+                            <div class="textarea-container">
+                                <textarea id="duel-user-input" class="custom-textarea" placeholder="Type a sentence here containing the word..."></textarea>
+                                <div class="word-indicator" id="duel-word-status">
+                                    <i class="fa-solid fa-triangle-exclamation text-yellow"></i> Sentence must contain "<span id="status-target-word">word</span>"
+                                </div>
+                            </div>
+                            
+                            <button id="duel-submit-btn" class="glow-btn" disabled>
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Compute Vector Similarity
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="panel-right glass-panel">
+                        <h3>Analysis Arena</h3>
+                        <div class="duel-results-placeholder" id="duel-placeholder">
+                            <div class="placeholder-content">
+                                <i class="fa-solid fa-chart-simple placeholder-icon"></i>
+                                <p>Write your sentence and click "Compute" to compare embeddings in real-time.</p>
+                            </div>
+                        </div>
+
+                        <div class="duel-results-content hidden" id="duel-results">
+                            <!-- Visual match score -->
+                            <div class="score-radial-container">
+                                <div class="radial-progress" id="score-radial" style="--percent: 0;">
+                                    <div class="radial-inner">
+                                        <span class="radial-value" id="score-value">0%</span>
+                                        <span class="radial-label">Similarity</span>
+                                    </div>
+                                </div>
+                                <div class="result-message-box">
+                                    <h4 id="result-verdict">Evaluating...</h4>
+                                    <p id="result-explanation">Analyzing vectors in multidimensional semantic space...</p>
+                                </div>
+                            </div>
+
+                            <!-- Bar Graph Comparisons -->
+                            <div class="similarities-breakdown">
+                                <h4>Cosine Similarity Breakdown</h4>
+                                <div class="bar-stat">
+                                    <div class="bar-labels">
+                                        <span>Your Sentence vs. <strong>Context A</strong></span>
+                                        <span id="sim-score-a">0.00</span>
+                                    </div>
+                                    <div class="bar-track">
+                                        <div class="bar-fill fill-blue" id="sim-bar-a" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="bar-stat">
+                                    <div class="bar-labels">
+                                        <span>Your Sentence vs. <strong>Context B</strong></span>
+                                        <span id="sim-score-b">0.00</span>
+                                    </div>
+                                    <div class="bar-track">
+                                        <div class="bar-fill fill-purple" id="sim-bar-b" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Token Viewer -->
+                            <div class="token-comparison-viewer">
+                                <h4>Extracted Contextual Embeddings</h4>
+                                <p class="small-info">Each sentence is processed by BERT. Below, hover over the tokens to see how BERT isolated the specific target word in context.</p>
+                                
+                                <div class="sentence-tokens-display" id="tokens-display-a">
+                                    <!-- Dynamic elements -->
+                                </div>
+                                <div class="sentence-tokens-display" id="tokens-display-user">
+                                    <!-- Dynamic elements -->
+                                </div>
+                                <div class="sentence-tokens-display" id="tokens-display-b">
+                                    <!-- Dynamic elements -->
+                                </div>
+                            </div>
+
+                            <div class="vector-drift-diagram">
+                                <h4>Embedding Vector Space Projection</h4>
+                                <p class="small-info">A 2D Projection of the multi-dimensional embedding space. Notice how your word vector lands closer to the meaning you crafted.</p>
+                                <div class="canvas-holder">
+                                    <canvas id="duel-canvas" width="400" height="220"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: SPACE NAVIGATOR -->
+            <section id="navigator-tab" class="tab-pane">
+                <div class="split-layout">
+                    <div class="panel-left glass-panel">
+                        <div class="section-title-wrapper">
+                            <span class="badge">GAME MODE 02</span>
+                            <h2>Semantic Space Navigator</h2>
+                            <p class="subtitle">Bridge the conceptual gap between two distant ideas. Write sentences and select a word to extract its contextual embedding to navigate the map. **Rule**: You cannot use the destination word itself!</p>
+                        </div>
+
+                        <div class="navigator-mission">
+                            <div class="nav-mission-box">
+                                <div class="mission-endpoint">
+                                    <span class="endpoint-label">START</span>
+                                    <span class="endpoint-word" id="nav-start-word">Planet</span>
+                                </div>
+                                <div class="mission-arrow"><i class="fa-solid fa-right-long"></i></div>
+                                <div class="mission-endpoint">
+                                    <span class="endpoint-label">DESTINATION</span>
+                                    <span class="endpoint-word" id="nav-target-word">Computer</span>
+                                </div>
+                            </div>
+                            <div class="mission-controls">
+                                <button class="small-glow-btn" id="new-mission-btn">
+                                    <i class="fa-solid fa-shuffle"></i> Change Mission
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="navigator-playzone">
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <span class="stat-lbl">Steps Taken</span>
+                                    <span class="stat-val" id="nav-step-count">0</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-lbl">Current Distance</span>
+                                    <span class="stat-val" id="nav-current-sim">0%</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-lbl">Target Similarity</span>
+                                    <span class="stat-val">≥ 85%</span>
+                                </div>
+                            </div>
+
+                            <div class="nav-input-field">
+                                <label for="nav-input" class="input-label">1. Write a sentence containing your intermediate concept:</label>
+                                <textarea id="nav-input" class="custom-textarea nav-textarea" placeholder="e.g. Astronauts ride a rocket ship into deep space."></textarea>
+                                
+                                <label class="input-label" style="margin-top: 15px;">2. Select the word whose vector you want to extract:</label>
+                                <div id="nav-token-selector" class="tokens-flex selector-padding">
+                                    <div class="text-muted small-info" style="margin: 0; padding: 5px;">Type a sentence above to populate words...</div>
+                                </div>
+                                
+                                <div class="word-indicator hidden" id="nav-validation-msg">
+                                    <i class="fa-solid fa-triangle-exclamation text-yellow"></i> You cannot use the destination word itself!
+                                </div>
+
+                                <button id="nav-submit-btn" class="glow-btn" style="margin-top: 15px;" disabled>
+                                    <i class="fa-solid fa-location-arrow"></i> Launch Selected Word Vector
+                                </button>
+                            </div>
+
+                            <!-- History Checklist -->
+                            <div class="nav-history">
+                                <h4>Navigation Path History</h4>
+                                <div class="history-list" id="nav-history-list">
+                                    <div class="history-empty">No nodes traversed yet. Type a sentence and click a word to start.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-right glass-panel">
+                        <h3>Semantic Navigation Map</h3>
+                        <p class="small-info">Visualization of the 2D projected semantic space. Path lines show the sequence of ideas linking the Start to the Destination.</p>
+                        
+                        <div class="canvas-wrapper-nav">
+                            <canvas id="nav-canvas" class="nav-canvas"></canvas>
+                        </div>
+                        
+                        <div class="canvas-legend">
+                            <span class="legend-item"><span class="dot start"></span> Start Node</span>
+                            <span class="legend-item"><span class="dot target"></span> Destination Node</span>
+                            <span class="legend-item"><span class="dot current"></span> Your Steps</span>
+                        </div>
+
+                        <!-- Active Token Analyzer (Integrated Explainer) -->
+                        <div class="nav-analyzer-section hidden" id="nav-analyzer">
+                            <div class="divider-line"></div>
+                            <h3 style="margin-top: 15px; font-family: var(--font-display); font-size: 1.1rem; color: #fff;">Active Vector Inspector</h3>
+                            <p class="small-info">See how BERT processed and shifted your selected word based on your sentence's attention mapping.</p>
+                            
+                            <div class="influence-report-box" id="nav-influence-report">
+                                <i class="fa-solid fa-circle-info text-blue"></i>
+                                <span id="nav-influence-text">Select a word and submit to view context report.</span>
+                            </div>
+
+                            <div class="analyzer-grid-sub">
+                                <div class="visualizer-block">
+                                    <h4>Sentence Tokenization</h4>
+                                    <div id="nav-tokens-display" class="sentence-tokens-display"></div>
+                                </div>
+                                
+                                <div class="visualizer-block">
+                                    <h4>Attention Connections</h4>
+                                    <div class="attention-viewer-container nav-attn-container">
+                                        <div id="nav-attn-left" class="attention-words-col"></div>
+                                        <div class="attention-canvas-holder nav-canvas-holder">
+                                            <canvas id="nav-attention-canvas" width="130" height="180"></canvas>
+                                        </div>
+                                        <div id="nav-attn-right" class="attention-words-col"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: HOW BERT WORKS -->
+            <section id="explainer-tab" class="tab-pane">
+                <div class="explainer-grid">
+                    <!-- Left: Core concepts -->
+                    <div class="glass-panel explainer-concepts">
+                        <h2>Under the Hood: How BERT Embeddings Work</h2>
+                        
+                        <div class="accordion-item active">
+                            <div class="accordion-header">
+                                <i class="fa-solid fa-cube text-blue"></i>
+                                <h3>1. From Static to Contextual Vectors</h3>
+                                <i class="fa-solid fa-chevron-down fold-icon"></i>
+                            </div>
+                            <div class="accordion-content">
+                                <p>Traditional embeddings like <strong>Word2Vec</strong> or <strong>GloVe</strong> assign a single mathematical vector to each word. This works fine for "computer," but completely fails for polysemous words like "bank".</p>
+                                <p>BERT uses a <strong>Transformer encoder</strong>. Instead of looking up a static vector, BERT processes the *entire sentence simultaneously* in both directions (left-to-right and right-to-left). As a result, the embedding for "bank" dynamically morphs, adjusting its dimensions depending on the surrounding tokens!</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <i class="fa-solid fa-puzzle-piece text-purple"></i>
+                                <h3>2. Subword Tokenization (WordPiece)</h3>
+                                <i class="fa-solid fa-chevron-down fold-icon"></i>
+                            </div>
+                            <div class="accordion-content">
+                                <p>BERT doesn't process whole words directly. It breaks text down into subword units called <strong>WordPieces</strong>. This prevents "Out of Vocabulary" errors.</p>
+                                <p>Common words stay intact, while rare or complex words are split into pieces marked with a prefix like <code>##</code>. BERT also prefixes sentences with a special classification token <code>[CLS]</code> and divides segments using <code>[SEP]</code>.</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <i class="fa-solid fa-glasses text-cyan"></i>
+                                <h3>3. Bidirectional Attention (Self-Attention)</h3>
+                                <i class="fa-solid fa-chevron-down fold-icon"></i>
+                            </div>
+                            <div class="accordion-content">
+                                <p>How does the context get injected? Through <strong>Self-Attention</strong>. Every token in the input sentence determines how much it should "pay attention" to every other token. </p>
+                                <p>For instance, in the sentence: <em>"The animal didn't cross the street because <strong>it</strong> was tired"</em>, the attention mechanism connects the token <strong>"it"</strong> heavily to <strong>"animal"</strong>. If we change it to <em>"because <strong>it</strong> was too wide"</em>, attention shifts <strong>"it"</strong> to connect with <strong>"street"</strong>. This attention-driven blending generates the final contextual embedding vector.</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <i class="fa-solid fa-calculator text-green"></i>
+                                <h3>4. Measuring Meaning: Cosine Similarity</h3>
+                                <i class="fa-solid fa-chevron-down fold-icon"></i>
+                            </div>
+                            <div class="accordion-content">
+                                <p>Embeddings are arrays of numbers (vectors) in a high-dimensional space (e.g., 384 dimensions for our local model). We compare their meaning using <strong>Cosine Similarity</strong>, which measures the angle between these vectors.</p>
+                                <p>If two vectors point in almost the same direction, their similarity is close to <strong>1.0 (or 100%)</strong>. If they are orthogonal (unrelated), similarity is near <strong>0.0</strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Interactive Sandbox -->
+                    <div class="glass-panel explainer-sandbox">
+                        <h3>Interactive BERT Simulator</h3>
+                        <p class="subtitle text-muted">Type any sentence to see how BERT tokenizes it and simulates contextual representation.</p>
+
+                        <div class="sandbox-input-group">
+                            <label for="sandbox-input" class="input-label">Write your sentence:</label>
+                            <input type="text" id="sandbox-input" class="custom-input" value="The transformer architecture relies on self-attention mechanisms.">
+                        </div>
+
+                        <div class="sandbox-visualizations">
+                            <!-- Tokenizer Output -->
+                            <div class="visualizer-block">
+                                <h4>WordPiece Tokenizer Output</h4>
+                                <p class="small-info">Hover over the tokens below. Subwords starting with <code>##</code> show how BERT splits larger words.</p>
+                                <div id="sandbox-tokens" class="tokens-flex">
+                                    <!-- Dynamic -->
+                                </div>
+                            </div>
+
+                            <!-- Attention Simulation -->
+                            <div class="visualizer-block">
+                                <h4>Self-Attention Map (Simulated)</h4>
+                                <p class="small-info">Hover over any token to see which other words in the sentence it attends to most to construct its contextual embedding.</p>
+                                <div class="attention-viewer-container">
+                                    <div id="attention-words-left" class="attention-words-col">
+                                        <!-- Dynamic tokens left -->
+                                    </div>
+                                    <div class="attention-canvas-holder">
+                                        <canvas id="attention-canvas" width="220" height="280"></canvas>
+                                    </div>
+                                    <div id="attention-words-right" class="attention-words-col">
+                                        <!-- Dynamic tokens right -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>Made with <i class="fa-solid fa-heart text-red"></i> for learning Transformers. Powered by <a href="https://huggingface.co/docs/transformers.js/index" target="_blank">Transformers.js</a> & Xenova/all-MiniLM-L6-v2.</p>
+        </footer>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Embeddings Interactive Explorer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="header-logo">
+                <span class="badge">Scratch NumPy Project</span>
+                <h1>Embedding Explorer & BERT Game</h1>
+                <p>Interact with custom-trained word vectors from your Wikipedia corpus</p>
+            </div>
+            <!-- Stats Dashboard -->
+            <div class="stats-dashboard">
+                <div class="stat-card">
+                    <span class="stat-label">Vocabulary Size</span>
+                    <span class="stat-value" id="stat-vocab-size">--</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Vector Dimensions</span>
+                    <span class="stat-value" id="stat-vector-dim">--</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Dataset Source</span>
+                    <span class="stat-value" id="stat-source-type">--</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="semantle">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></nav>
+            </button>
+            <button class="tab-btn" data-tab="bert">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                BERT Masked Game
+            </button>
+            <button class="tab-btn" data-tab="analogy">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                Vector Math (Analogy)
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- TAB 1: SEMANTLE -->
+            <section class="tab-content active" id="content-semantle">
+                <div class="card-grid">
+                    <!-- Left: Control panel -->
+                    <div class="card main-panel">
+                        <div class="card-header">
+                            <h2>Semantle similarity Game</h2>
+                            <p>Guess the secret word! The game will give you the cosine similarity between your guess and the secret target word.</p>
+                        </div>
+                        
+                        <div class="game-actions">
+                            <button id="btn-restart-semantle" class="btn secondary">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                                New Game
+                            </button>
+                            <button id="btn-hint-semantle" class="btn secondary">Get Hint</button>
+                        </div>
+
+                        <form id="form-semantle" class="input-group">
+                            <input type="text" id="input-semantle-guess" autocomplete="off" placeholder="Type a guess word (e.g. language)..." required />
+                            <button type="submit" class="btn primary">Guess</button>
+                        </form>
+                        <div class="feedback-msg" id="semantle-msg"></div>
+
+                        <!-- Current Closeness Meter -->
+                        <div class="closeness-container" id="closeness-card" style="display: none;">
+                            <div class="closeness-header">
+                                <span>Last Guess similarity</span>
+                                <span class="similarity-value" id="last-sim-val">0.0000</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" id="last-sim-bar" style="width: 0%"></div>
+                            </div>
+                            <div class="closeness-footer" id="last-sim-feedback">Too Cold!</div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Guesses list -->
+                    <div class="card sidebar-panel">
+                        <div class="card-header">
+                            <h3>Guess History</h3>
+                            <p>Ordered by similarity (highest on top)</p>
+                        </div>
+                        <div class="guess-list-container">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Guess</th>
+                                        <th>Similarity</th>
+                                        <th>Closeness</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="semantle-history">
+                                    <!-- Dynamic rows -->
+                                    <tr class="empty-placeholder">
+                                        <td colspan="4">No guesses yet. Start playing!</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: BERT MASKED GAME -->
+            <section class="tab-content" id="content-bert">
+                <div class="card-grid">
+                    <!-- Left: Guess Pane -->
+                    <div class="card main-panel">
+                        <div class="card-header">
+                            <h2>Fill the [MASK]</h2>
+                            <p>We sampled a sentence from your Wikipedia data and replaced one word with a <code>[MASK]</code>. Can you guess it?</p>
+                        </div>
+
+                        <div class="sentence-box">
+                            <p id="bert-sentence">Loading sentence...</p>
+                        </div>
+
+                        <div class="game-actions">
+                            <button id="btn-next-bert" class="btn secondary">Next Sentence</button>
+                            <button id="btn-reveal-bert" class="btn secondary">Reveal Answer</button>
+                        </div>
+
+                        <form id="form-bert" class="input-group">
+                            <input type="text" id="input-bert-guess" autocomplete="off" placeholder="Enter word to replace [MASK]..." required />
+                            <button type="submit" class="btn primary">Check</button>
+                        </form>
+                        <div class="feedback-msg" id="bert-msg"></div>
+                    </div>
+
+                    <!-- Right: Top Model Predictions -->
+                    <div class="card sidebar-panel">
+                        <div class="card-header">
+                            <h3>Model MLM Predictions</h3>
+                            <p>What the trained Word2Vec context vectors predict for this slot</p>
+                        </div>
+                        <div class="predictions-list" id="bert-predictions">
+                            <div class="empty-placeholder">Submit a guess to see predictions.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: VECTOR MATH -->
+            <section class="tab-content" id="content-analogy">
+                <div class="card-grid-single">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Vector Analogy Solver</h2>
+                            <p>Explore vector relationships like: <strong>Word A - Word B + Word C = Word D</strong> (e.g. <em>king - man + woman = queen</em>)</p>
+                        </div>
+
+                        <div class="analogy-builder">
+                            <div class="analogy-row">
+                                <div class="word-input-box">
+                                    <label>Word A</label>
+                                    <input type="text" id="analogy-a" placeholder="e.g. king" value="king">
+                                </div>
+                                <div class="math-symbol">-</div>
+                                <div class="word-input-box">
+                                    <label>Word B</label>
+                                    <input type="text" id="analogy-b" placeholder="e.g. man" value="man">
+                                </div>
+                                <div class="math-symbol">+</div>
+                                <div class="word-input-box">
+                                    <label>Word C</label>
+                                    <input type="text" id="analogy-c" placeholder="e.g. woman" value="woman">
+                                </div>
+                                <div class="math-symbol">=</div>
+                                <div class="result-display">
+                                    <span class="result-label">Closest Word D</span>
+                                    <span class="result-value" id="analogy-result">???</span>
+                                </div>
+                            </div>
+                            <button id="btn-solve-analogy" class="btn primary btn-large">Calculate Analogy</button>
+                        </div>
+
+                        <div class="closest-candidates-section">
+                            <h3>Top Candidate Words</h3>
+                            <div class="candidates-grid" id="analogy-candidates">
+                                <!-- Dynamic dynamic candidate list -->
+                                <div class="empty-placeholder">Enter valid vocabulary words above.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>Built with Python, NumPy & Vanilla HTML/CSS/JS. Loaded: <span id="load-status" class="status-badge offline">Offline (Fallback Data)</span></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
