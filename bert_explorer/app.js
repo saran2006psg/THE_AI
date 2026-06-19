@@ -644,6 +644,9 @@ async function initNavigatorGame() {
     state.navigator.targetWord = mission.target;
     state.navigator.steps = 0;
     state.navigator.history = [];
+    state.navigator.selectedWord = null;
+    state.navigator.selectedWordIndex = -1;
+    state.navigator.tokens = [];
 
     document.getElementById('nav-start-word').innerText = mission.start;
     document.getElementById('nav-target-word').innerText = mission.target;
@@ -651,9 +654,14 @@ async function initNavigatorGame() {
     document.getElementById('nav-current-sim').innerText = '0%';
     
     const historyList = document.getElementById('nav-history-list');
-    historyList.innerHTML = `<div class="history-empty">No nodes traversed yet. Type a word and press Enter to launch.</div>`;
+    historyList.innerHTML = `<div class="history-empty">No nodes traversed yet. Type a sentence and click a word to start.</div>`;
 
     document.getElementById('nav-input').value = '';
+    document.getElementById('nav-token-selector').innerHTML = `<div class="text-muted small-info" style="margin: 0; padding: 5px;">Type a sentence above to populate words...</div>`;
+    
+    document.getElementById('nav-validation-msg').classList.add('hidden');
+    document.getElementById('nav-submit-btn').setAttribute('disabled', 'true');
+    document.getElementById('nav-analyzer').classList.add('hidden');
 
     // Calculate Endpoints Embeddings
     const featStart = await extractor(mission.start);
@@ -665,25 +673,127 @@ async function initNavigatorGame() {
     drawNavigatorMap();
 }
 
+function updateNavTokenSelector() {
+    const input = document.getElementById('nav-input').value;
+    const selector = document.getElementById('nav-token-selector');
+    const submitBtn = document.getElementById('nav-submit-btn');
+    const warning = document.getElementById('nav-validation-msg');
+
+    // Reset selection
+    state.navigator.selectedWord = null;
+    state.navigator.selectedWordIndex = -1;
+    submitBtn.setAttribute('disabled', 'true');
+    warning.classList.add('hidden');
+
+    if (!input.trim()) {
+        selector.innerHTML = `<div class="text-muted small-info" style="margin: 0; padding: 5px;">Type a sentence above to populate words...</div>`;
+        return;
+    }
+
+    // Split words by space and clean punctuation
+    const words = input.trim().split(/\s+/);
+    state.navigator.tokens = words;
+
+    selector.innerHTML = '';
+    words.forEach((word, idx) => {
+        const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, "").trim();
+        if (!cleanWord) return;
+
+        const btn = document.createElement('button');
+        btn.className = 'nav-token-btn';
+        btn.innerText = word;
+        btn.setAttribute('data-idx', idx);
+        btn.setAttribute('data-word', cleanWord);
+
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.nav-token-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            state.navigator.selectedWord = cleanWord;
+            state.navigator.selectedWordIndex = idx;
+
+            // Validate target word blocking
+            const destWord = state.navigator.targetWord.toLowerCase();
+            const chosenWord = cleanWord.toLowerCase();
+            
+            // Block if chosen word contains target or matches target stem
+            if (chosenWord === destWord || chosenWord.includes(destWord) || (destWord.includes(chosenWord) && chosenWord.length > 3)) {
+                warning.classList.remove('hidden');
+                submitBtn.setAttribute('disabled', 'true');
+            } else {
+                warning.classList.add('hidden');
+                submitBtn.removeAttribute('disabled');
+            }
+        });
+
+        selector.appendChild(btn);
+    });
+}
+
 async function handleNavigatorSubmit() {
     const inputField = document.getElementById('nav-input');
     const submitBtn = document.getElementById('nav-submit-btn');
-    const word = inputField.value.trim();
+    
+    const sentence = inputField.value.trim();
+    const chosenWord = state.navigator.selectedWord;
+    const chosenWordIndex = state.navigator.selectedWordIndex;
 
-    if (!word) return;
+    if (!sentence || !chosenWord || chosenWordIndex === -1) return;
+
+    // Check target word blocking once more
+    const destWord = state.navigator.targetWord.toLowerCase();
+    if (chosenWord.toLowerCase() === destWord || chosenWord.toLowerCase().includes(destWord)) {
+        alert(`Rule Warning: You cannot use the destination word "${state.navigator.targetWord}" directly!`);
+        return;
+    }
 
     // Disable input during extraction
     inputField.disabled = true;
     submitBtn.disabled = true;
+    document.querySelectorAll('.nav-token-btn').forEach(b => b.disabled = true);
 
     try {
-        // Extract pooled sentence embedding
-        const feat = await extractor(word);
-        const embedding = meanPool(feat);
+        // 1. Tokenize the entire sentence using BERT tokenizer
+        const result = await tokenizer(sentence);
+        const ids = Array.from(result.input_ids.data);
+        const tokenStrings = ids.map(id => tokenizer.decode([id]));
 
-        // Compute similarities
-        const simToStart = cosineSimilarity(embedding, state.navigator.startEmbedding);
-        const simToTarget = cosineSimilarity(embedding, state.navigator.targetEmbedding);
+        // 2. Map space-separated word index to WordPiece token index
+        let wordCounter = -1;
+        const tokenIndexMap = [];
+        for (let i = 0; i < tokenStrings.length; i++) {
+            const tok = tokenStrings[i];
+            if (tok === '[CLS]' || tok === '[SEP]') {
+                tokenIndexMap.push(-1);
+                continue;
+            }
+            if (!tok.startsWith('##')) {
+                wordCounter++;
+            }
+            tokenIndexMap.push(wordCounter);
+        }
+
+        let targetTokenIdx = -1;
+        for (let i = 0; i < tokenStrings.length; i++) {
+            if (tokenIndexMap[i] === chosenWordIndex) {
+                targetTokenIdx = i;
+                break;
+            }
+        }
+
+        if (targetTokenIdx === -1) {
+            alert(`Could not isolate word "${chosenWord}" in token space. Please try another word or rephrase.`);
+            return;
+        }
+
+        // 3. Extract hidden state embeddings (pooling: 'none' for token-level)
+        const feat = await extractor(sentence, { pooling: 'none' });
+        const vector = getWordEmbedding(feat, targetTokenIdx);
+
+        // 4. Compute similarities to start and target
+        const simToStart = cosineSimilarity(vector, state.navigator.startEmbedding);
+        const simToTarget = cosineSimilarity(vector, state.navigator.targetEmbedding);
 
         // Increment steps
         state.navigator.steps++;
@@ -693,7 +803,7 @@ async function handleNavigatorSubmit() {
         document.getElementById('nav-current-sim').innerText = `${currentSimPercent}%`;
 
         // Add to history
-        const node = { word, embedding, simToTarget, simToStart };
+        const node = { word: chosenWord, embedding: vector, simToTarget, simToStart };
         state.navigator.history.push(node);
 
         // Update list UI
@@ -702,26 +812,173 @@ async function handleNavigatorSubmit() {
         // Redraw Canvas
         drawNavigatorMap();
 
+        // 5. Update Integrated Explainer (Tokenizer & Attention Canvas)
+        document.getElementById('nav-analyzer').classList.remove('hidden');
+        renderNavTokensDisplay(tokenStrings, targetTokenIdx);
+        renderNavAttentionViewer(tokenStrings, targetTokenIdx, sentence, simToStart, simToTarget);
+
         // Check Victory Condition
         if (simToTarget >= 0.85) {
             setTimeout(() => {
                 alert(`🎉 MISSION COMPLETED! You connected "${state.navigator.startWord}" to "${state.navigator.targetWord}" in ${state.navigator.steps} steps! Current similarity: ${(simToTarget * 100).toFixed(1)}%`);
-                // Move to next mission
                 state.navigator.activeMissionIdx = (state.navigator.activeMissionIdx + 1) % navigatorMissions.length;
                 initNavigatorGame();
             }, 300);
+            return;
         }
 
-        // Reset inputs
+        // Reset inputs for next step
         inputField.value = '';
+        updateNavTokenSelector();
 
     } catch (err) {
         alert("Error generating embedding: " + err.message);
+        console.error(err);
     } finally {
         inputField.disabled = false;
         submitBtn.disabled = false;
+        document.querySelectorAll('.nav-token-btn').forEach(b => b.disabled = false);
         inputField.focus();
     }
+}
+
+function renderNavTokensDisplay(tokens, targetIdx) {
+    const container = document.getElementById('nav-tokens-display');
+    container.innerHTML = '';
+
+    tokens.forEach((tok, i) => {
+        const span = document.createElement('span');
+        span.className = 'tok';
+        if (i === 0 || i === tokens.length - 1) {
+            span.className += ' special';
+        }
+        if (i === targetIdx) {
+            span.className += ' target-highlight';
+        }
+        span.innerText = tok;
+        container.appendChild(span);
+    });
+}
+
+function renderNavAttentionViewer(tokens, targetIdx, sentence, simToStart, simToTarget) {
+    const leftCol = document.getElementById('nav-attn-left');
+    const rightCol = document.getElementById('nav-attn-right');
+    leftCol.innerHTML = '';
+    rightCol.innerHTML = '';
+
+    tokens.forEach((tok, i) => {
+        const itemLeft = document.createElement('div');
+        itemLeft.className = 'attn-word-node';
+        itemLeft.innerText = tok;
+        itemLeft.setAttribute('data-idx', i);
+        if (i === targetIdx) {
+            itemLeft.classList.add('selected-left');
+        }
+        leftCol.appendChild(itemLeft);
+
+        const itemRight = document.createElement('div');
+        itemRight.className = 'attn-word-node';
+        itemRight.innerText = tok;
+        itemRight.setAttribute('data-idx', i);
+        rightCol.appendChild(itemRight);
+    });
+
+    // Generate simulated attention weights
+    const matrix = generateSimulatedAttentionMatrix(tokens);
+    const weights = matrix[targetIdx] || [];
+
+    state.navigator.activeTokens = tokens;
+    state.navigator.activeWeights = weights;
+    state.navigator.activeTargetIdx = targetIdx;
+
+    // Highlight right nodes with attention strengths
+    const rightNodes = document.querySelectorAll('#nav-attn-right .attn-word-node');
+    rightNodes.forEach(node => {
+        const idx = parseInt(node.getAttribute('data-idx'));
+        const w = weights[idx] || 0.05;
+        node.style.setProperty('--attn-val', w * 1.5);
+        node.classList.add('highlight-right');
+    });
+
+    // Draw attention canvas lines
+    drawNavAttentionLines(targetIdx, weights);
+
+    // Context Influence Report
+    const candidates = [];
+    tokens.forEach((tok, i) => {
+        if (i !== targetIdx && tok !== '[CLS]' && tok !== '[SEP]') {
+            candidates.push({ word: tok, weight: weights[i] || 0, idx: i });
+        }
+    });
+
+    candidates.sort((a, b) => b.weight - a.weight);
+    const topInfluencers = candidates.slice(0, 2).map(c => c.word.replace('##', ''));
+
+    let influenceText = `Your selected word <strong>${state.navigator.selectedWord}</strong> was processed in context. `;
+    if (topInfluencers.length > 0) {
+        influenceText += `Its vector shifted because it attended heavily to <strong>"${topInfluencers.join('" and "')}"</strong> in your sentence. `;
+    }
+
+    const shiftMag = Math.round(Math.abs(simToTarget - simToStart) * 100);
+    const startWord = state.navigator.startWord;
+    const targetWord = state.navigator.targetWord;
+
+    if (simToTarget > simToStart) {
+        influenceText += `This context successfully shifted the vector <strong>${shiftMag}% closer</strong> to your destination (<strong>${targetWord}</strong>) than to the start (<strong>${startWord}</strong>).`;
+    } else {
+        influenceText += `However, this context keeps the vector closer to the start (<strong>${startWord}</strong>). Try framing it in a context more associated with <strong>${targetWord}</strong>!`;
+    }
+
+    document.getElementById('nav-influence-text').innerHTML = influenceText;
+}
+
+function drawNavAttentionLines(leftIdx, weights) {
+    const canvas = document.getElementById('nav-attention-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const rect = canvas.parentNode.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const leftNodes = document.querySelectorAll('#nav-attn-left .attn-word-node');
+    const rightNodes = document.querySelectorAll('#nav-attn-right .attn-word-node');
+
+    if (leftNodes.length === 0 || rightNodes.length === 0 || !leftNodes[leftIdx]) return;
+
+    const leftNodeRect = leftNodes[leftIdx].getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    
+    const startPoint = {
+        x: 0,
+        y: (leftNodeRect.top + leftNodeRect.height/2) - canvasRect.top
+    };
+
+    rightNodes.forEach(node => {
+        const nodeIdx = parseInt(node.getAttribute('data-idx'));
+        const w = weights[nodeIdx] || 0;
+
+        if (w < 0.04) return;
+
+        const rightNodeRect = node.getBoundingClientRect();
+        const endPoint = {
+            x: canvas.width,
+            y: (rightNodeRect.top + rightNodeRect.height/2) - canvasRect.top
+        };
+
+        ctx.strokeStyle = `rgba(0, 242, 254, ${w * 1.8})`;
+        ctx.lineWidth = Math.max(0.5, w * 6);
+        ctx.beginPath();
+        ctx.moveTo(startPoint.x, startPoint.y);
+        ctx.bezierCurveTo(
+            canvas.width * 0.4, startPoint.y,
+            canvas.width * 0.6, endPoint.y,
+            endPoint.x, endPoint.y
+        );
+        ctx.stroke();
+    });
 }
 
 function updateNavigatorHistoryList() {
@@ -746,18 +1003,14 @@ function drawNavigatorMap() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // Make canvas responsive to its bounds
     const rect = canvas.parentNode.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
 
-    // Draw dark starfield background
     ctx.fillStyle = '#04070e';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw space dust particles (stars)
     ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-    const startSeed = stringHash(state.navigator.startWord);
     for (let i = 0; i < 40; i++) {
         const starX = Math.abs(stringHash(state.navigator.startWord + i) % canvas.width);
         const starY = Math.abs(stringHash(state.navigator.targetWord + i) % canvas.height);
@@ -765,7 +1018,6 @@ function drawNavigatorMap() {
         ctx.fillRect(starX, starY, size, size);
     }
 
-    // Horizontal centerline
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -773,11 +1025,9 @@ function drawNavigatorMap() {
     ctx.lineTo(canvas.width, canvas.height/2);
     ctx.stroke();
 
-    // Endpoint positions
     const startNode = { x: 70, y: canvas.height/2 };
     const targetNode = { x: canvas.width - 70, y: canvas.height/2 };
 
-    // Draw connecting axis
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 10]);
@@ -787,22 +1037,18 @@ function drawNavigatorMap() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Plot History Steps
     let prevPoint = startNode;
     state.navigator.history.forEach((node, i) => {
-        // Calculate coordinates
         let w = (node.simToTarget - node.simToStart + 1) / 2;
-        w = Math.max(0.12, Math.min(0.88, w)); // Clamp to keep on screen
+        w = Math.max(0.12, Math.min(0.88, w));
         const px = startNode.x + w * (targetNode.x - startNode.x);
 
-        // Deterministic offset Y based on string hash. Points closer to endpoints have smaller offsets
         const hashVal = stringHash(node.word);
         const maxOffset = (1 - Math.max(node.simToStart, node.simToTarget)) * 140;
         const py = (canvas.height/2) + Math.sin(hashVal) * maxOffset;
 
         const currentPoint = { x: px, y: py };
 
-        // Draw path connecting lines
         ctx.strokeStyle = 'rgba(57, 255, 20, 0.3)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
@@ -810,7 +1056,6 @@ function drawNavigatorMap() {
         ctx.lineTo(currentPoint.x, currentPoint.y);
         ctx.stroke();
 
-        // Draw particle node
         ctx.shadowBlur = 8;
         ctx.shadowColor = 'rgba(57, 255, 20, 0.6)';
         ctx.fillStyle = '#39ff14';
@@ -818,7 +1063,6 @@ function drawNavigatorMap() {
         ctx.arc(currentPoint.x, currentPoint.y, 5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw label for the node
         ctx.shadowBlur = 0;
         ctx.fillStyle = '#94a3b8';
         ctx.font = '10px Space Grotesk';
@@ -828,7 +1072,6 @@ function drawNavigatorMap() {
         prevPoint = currentPoint;
     });
 
-    // Draw line from last node to target (with faded dashed line)
     if (state.navigator.history.length > 0) {
         ctx.strokeStyle = 'rgba(157, 78, 221, 0.2)';
         ctx.lineWidth = 1;
@@ -840,7 +1083,6 @@ function drawNavigatorMap() {
         ctx.setLineDash([]);
     }
 
-    // DRAW START NODE
     ctx.shadowBlur = 12;
     ctx.shadowColor = 'rgba(0, 242, 254, 0.6)';
     ctx.fillStyle = '#00f2fe';
@@ -852,7 +1094,6 @@ function drawNavigatorMap() {
     ctx.textAlign = 'center';
     ctx.fillText(state.navigator.startWord.toUpperCase(), startNode.x, startNode.y - 15);
 
-    // DRAW TARGET NODE
     ctx.shadowColor = 'rgba(157, 78, 221, 0.6)';
     ctx.fillStyle = '#9d4edd';
     ctx.beginPath();
@@ -1126,11 +1367,7 @@ function initEventListeners() {
 
     // 5. Space Navigator word input listener
     const navInput = document.getElementById('nav-input');
-    navInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleNavigatorSubmit();
-        }
-    });
+    navInput.addEventListener('input', updateNavTokenSelector);
 
     const navSubmit = document.getElementById('nav-submit-btn');
     navSubmit.addEventListener('click', handleNavigatorSubmit);
@@ -1167,6 +1404,9 @@ function initEventListeners() {
     window.addEventListener('resize', () => {
         if (state.activeTab === 'navigator-tab') {
             drawNavigatorMap();
+            if (state.navigator.activeWeights) {
+                drawNavAttentionLines(state.navigator.activeTargetIdx, state.navigator.activeWeights);
+            }
         } else if (state.activeTab === 'duel-tab' && !document.getElementById('duel-results').classList.contains('hidden')) {
             // Get current similarities from display
             const simA = parseFloat(document.getElementById('sim-score-a').innerText);
